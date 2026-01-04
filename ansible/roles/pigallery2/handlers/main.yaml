@@ -1,8 +1,11 @@
 # pigallery
 ---
 
-- name: 
-  ansible.builtin.import_tasks: global-handlers/main.yaml
+- name: Reload Systemd
+  listen: "reload systemd"
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
 
 - name: Restart pigallery
   listen: "restart pigallery"
