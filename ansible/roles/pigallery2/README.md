@@ -2,6 +2,22 @@
 
 The directory `pigallery2` contains an example ansible role that can be used to install PiGallery2 on Fedora 43 Linux distribution.
 
+## Sample Playbook
+
+Playbook by default is expected to run in `become: true` mode, aka as root user or `sudo` user equivalent.
+
+```yaml
+- name: configure PiGallery2
+  hosts: YOUR_TARGET_HOSTNAME_HERE
+  become: "true"
+  gather_facts: "false"
+
+  roles:
+  - role: pigallery2
+```
+
+## Reverse Proxy Configuration
+
 Reverse proxy is omitted.  Caddy is recommended for simplicity of certificate management.
 
 Sample caddy file:
