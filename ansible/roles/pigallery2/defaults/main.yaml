@@ -1,0 +1,12 @@
+# PiGallery2
+---
+pigallery_version: "3.1.0"
+pigallery_url: "https://github.com/bpatrik/pigallery2/archive/refs/tags/{{pigallery_version}}.tar.gz"
+pigallery_user_dir: "/var/lib/pigallery"
+pigallery_work_dir: "{{pigallery_user_dir}}/pigallery2-{{pigallery_version}}"
+
+pigallery_port: "8059"
+
+pigallery_images: "/mnt/data1/shares/photos"
+pigallery_db_dir: "{{pigallery_user_dir}}/db"
+pigallery_tmp: "/mnt/data2/pigallery-tmp"

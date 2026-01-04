@@ -1,0 +1,102 @@
+# PiGallery2
+---
+
+- name: install prereqs
+  dnf:
+    name: "{{item}}"
+    state: present
+  loop:
+    - vips
+    - vips-devel
+  tags: [install, prereq]
+
+- name: pigallery group
+  ansible.builtin.group:
+    name: pigallery
+    state: present
+    system: yes
+  tags: [install,install-user]
+
+- name: pigallery user
+  ansible.builtin.user:
+    name: pigallery
+    group: pigallery
+    groups: []
+    state: present
+    home: "{{pigallery_user_dir}}"
+    system: yes
+  tags: [install,install-user]
+
+- name: download URL
+  ansible.builtin.get_url:
+    url: "{{pigallery_url}}"
+    dest: /tmp/pigallery2-{{pigallery_version}}.tar.gz
+    mode: '0644'
+  tags: [install,install-app]
+
+- name: "extract tarball to {{pigallery_user_dir}}/pigallery2-{{pigallery_version}}"
+  ansible.builtin.unarchive:
+    src: "/tmp/pigallery2-{{pigallery_version}}.tar.gz"
+    dest: "{{pigallery_user_dir}}"
+    remote_src: yes
+    owner: pigallery
+    group: pigallery
+    creates: "{{pigallery_user_dir}}/pigallery2-{{pigallery_version}}"
+  tags: [install,install-app]
+
+- name: compile
+  become_user: "pigallery"
+  ansible.builtin.shell:
+    cmd: "{{item}}"
+    chdir: "{{pigallery_user_dir}}/pigallery2-{{pigallery_version}}"
+  loop:
+    - node '--eval=console.log(process.env)'
+    - npm install
+    - npm run build
+  register: compile_res
+  tags: [install,compile]
+- debug:
+    var: compile_res
+  tags: [install,compile]
+
+- name: create writeable directories
+  ansible.builtin.file:
+    path: "{{pigallery_tmp}}"
+    state: directory
+    owner: pigallery
+    group: pigallery
+    mode: '0755'
+  loop:
+    - "{{pigallery_tmp}}"
+    - "{{pigallery_db_dir}}"
+  tags: [install,install-service]
+
+- name: copy config file
+  ansible.builtin.template:
+    src: pigallery.json.j2
+    dest: /etc/pigallery.json
+  notify: [restart pigallery]
+  tags: [install,install-service]
+
+- name: copy service file
+  ansible.builtin.template:
+    src: pigallery.service
+    dest: /etc/systemd/system/
+  notify: [reload systemd, restart pigallery]
+  tags: [install,install-service]
+
+- name: start pigallery
+  ansible.builtin.systemd:
+    name: "pigallery.service"
+    state: "started"
+    enabled: true
+  tags: [install,install-service]
+
+- name: configure firewall
+  ansible.posix.firewalld:
+    zone: internal
+    port: "{{pigallery_port}}/tcp"
+    permanent: "true"
+    state: enabled
+    immediate: "true"
+  tags: [install,config-firewall]

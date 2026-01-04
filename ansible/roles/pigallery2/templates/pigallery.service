@@ -1,0 +1,29 @@
+[Unit]
+Description=PiGallery2
+After=network.target
+
+[Service]
+Type=simple
+User=pigallery
+Group=pigallery
+WorkingDirectory={{ pigallery_work_dir }}
+
+Environment='NODE_ENV=production'
+
+ExecStart=/usr/sbin/npm start -- --config-path /etc/pigallery.json
+# always no
+Restart=no
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=false
+ProtectSystem=full
+# Enabile for config.json file generation:
+ReadWritePaths={{pigallery_db_dir}} {{pigallery_tmp}}
+
+[Install]
+WantedBy=multi-user.target
