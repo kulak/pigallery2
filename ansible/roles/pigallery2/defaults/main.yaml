@@ -10,3 +10,6 @@ pigallery_port: "8059"
 pigallery_images: "/mnt/data1/shares/photos"
 pigallery_db_dir: "{{pigallery_user_dir}}/db"
 pigallery_tmp: "/mnt/data2/pigallery-tmp"
+
+# FedoraServer is the default public acess zone on Fedora Server.
+firewall_zone: internal

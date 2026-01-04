@@ -94,7 +94,7 @@
 
 - name: configure firewall
   ansible.posix.firewalld:
-    zone: internal
+    zone: "{{firewall_zone}}"
     port: "{{pigallery_port}}/tcp"
     permanent: "true"
     state: enabled
